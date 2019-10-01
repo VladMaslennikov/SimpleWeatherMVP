@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.simpleweathermvp.R;
 import com.example.simpleweathermvp.entity.City;
 import com.example.simpleweathermvp.model.CityModel;
+import com.example.simpleweathermvp.model.network.GooglePlacesApiFactory;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class HomeActivity extends AppCompatActivity implements HomeView {
     private final String COUNTRY_COLUM = "country";
     private final String[] SUGGESTION_CULUM = {BaseColumns._ID, PLACE_ID_COLUM, CITY_COLUM, COUNTRY_COLUM};
 
-    HomePresenter presenter = new HomePresenter(new CityModel());
+    HomePresenter presenter = new HomePresenter(new CityModel(GooglePlacesApiFactory.factory()));
 
     private RecyclerView citiesList;
     private Toolbar toolbar;
