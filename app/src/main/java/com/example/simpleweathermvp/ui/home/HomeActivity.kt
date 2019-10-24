@@ -11,24 +11,27 @@ import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cursoradapter.widget.SimpleCursorAdapter
+import com.example.simpleweathermvp.App
 
 import com.example.simpleweathermvp.R
 import com.example.simpleweathermvp.entity.City
-import com.example.simpleweathermvp.model.CityModel
-import com.example.simpleweathermvp.model.network.GooglePlacesApi
+import com.example.simpleweathermvp.extension.inject
 
 import kotlinx.android.synthetic.main.home_activity.*
+import org.koin.core.parameter.parametersOf
 
 class HomeActivity : AppCompatActivity(), HomeView {
+
+    val presenter: HomePresenter by inject {
+        parametersOf(this as HomeView)
+    }
 
     private val PLACE_ID_COLUM: String = "place_id"
     private val CITY_COLUM: String = "city"
     private val COUNTRY_COLUM: String = "country"
     private val SUGGESTION_CULUM: Array<String> = arrayOf(BaseColumns._ID, PLACE_ID_COLUM, CITY_COLUM, COUNTRY_COLUM)
 
-    private val presenter by lazy {
-        HomePresenter(CityModel(GooglePlacesApi.create()))
-    }
+
     val colums: Array<String> = arrayOf(CITY_COLUM, COUNTRY_COLUM)
     val itemIds: IntArray = intArrayOf(android.R.id.text1, android.R.id.text2) // массив id view из разметки
 
@@ -39,9 +42,8 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.home_activity)
 
-        presenter.onViewCreated(this)
+        setContentView(R.layout.home_activity)
 
         setSupportActionBar(toolbar)
     }
