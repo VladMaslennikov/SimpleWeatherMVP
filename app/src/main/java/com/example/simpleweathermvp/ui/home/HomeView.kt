@@ -4,4 +4,5 @@ import com.example.simpleweathermvp.entity.City
 
 interface HomeView {
      fun showSuggvestionCities(cities: List<City>)
+     fun showListCicies(cities: List<City>)
 }

@@ -8,6 +8,6 @@ import org.koin.dsl.module
 object UiModule {
 
     fun create() = module {
-        factory { (homeView: HomeView) -> HomePresenter(get(), homeView) }
+        factory { (homeView: HomeView) -> HomePresenter(get(), homeView, get(), get(), get()) }
     }
 }

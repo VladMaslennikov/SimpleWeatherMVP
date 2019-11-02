@@ -11,9 +11,12 @@ import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cursoradapter.widget.SimpleCursorAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.simpleweathermvp.App
 
 import com.example.simpleweathermvp.R
+import com.example.simpleweathermvp.data.geteway.CityGeteway
 import com.example.simpleweathermvp.entity.City
 import com.example.simpleweathermvp.extension.inject
 
@@ -39,6 +42,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         SimpleCursorAdapter(this, android.R.layout.simple_expandable_list_item_2, null, colums, itemIds, 0)
     }
 
+    private val cityAdapter = CityAdapter(onRemoveClicks = { city ->
+        presenter.removeCity(city)
+    })
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +53,12 @@ class HomeActivity : AppCompatActivity(), HomeView {
         setContentView(R.layout.home_activity)
 
         setSupportActionBar(toolbar)
-    }
+
+        rv_cities.layoutManager = LinearLayoutManager(this)
+        rv_cities.adapter = cityAdapter
+
+        presenter.getAllCities()
+}
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.user_info_menu, menu)
@@ -70,6 +82,28 @@ class HomeActivity : AppCompatActivity(), HomeView {
             }
 
         })
+        searchView.setOnSuggestionListener(object : SearchView.OnSuggestionListener{
+            override fun onSuggestionSelect(position: Int): Boolean {
+                val cursor = suggestionAdapter.cursor
+                cursor.moveToPosition(position)
+
+                val idSelected = cursor.getString(cursor.getColumnIndex(PLACE_ID_COLUM))
+                val citySelected = cursor.getString(cursor.getColumnIndex(CITY_COLUM))
+                val countrySelected = cursor.getString(cursor.getColumnIndex(COUNTRY_COLUM))
+
+                presenter.savedCityDb(City(idSelected, citySelected, countrySelected))
+
+                searchView.setQuery("", false) // Очищаю строку поиска
+                searchView.clearFocus() // Убрал фокус чтобы скрыть клавиатуру
+                menuItem.collapseActionView()
+                return true
+            }
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                return onSuggestionSelect(position)
+            }
+
+        })
         return true
     }
 
@@ -83,5 +117,9 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
         suggestionAdapter.swapCursor(cursor)
 
+    }
+
+    override fun showListCicies(cities: List<City>) {
+        cityAdapter.setItems(cities)
     }
 }
