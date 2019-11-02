@@ -8,4 +8,5 @@ class RemoveCityInteractor(private val cityGeteway: CityGeteway) {
     fun execute(city: City){
         cityGeteway.removeCity(city)
     }
+
 }
