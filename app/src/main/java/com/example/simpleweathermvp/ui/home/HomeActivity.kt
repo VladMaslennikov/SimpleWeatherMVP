@@ -2,6 +2,7 @@ package com.example.simpleweathermvp.ui.home
 
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import android.database.MatrixCursor
 import android.os.Bundle
 import android.provider.BaseColumns
@@ -12,13 +13,11 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.simpleweathermvp.App
 
 import com.example.simpleweathermvp.R
-import com.example.simpleweathermvp.data.geteway.CityGeteway
-import com.example.simpleweathermvp.entity.City
+import com.example.simpleweathermvp.domain.entity.City
 import com.example.simpleweathermvp.extension.inject
+import com.example.simpleweathermvp.ui.weather.WeatherActivity
 
 import kotlinx.android.synthetic.main.home_activity.*
 import org.koin.core.parameter.parametersOf
@@ -30,7 +29,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private val PLACE_ID_COLUM: String = "place_id"
-    private val CITY_COLUM: String = "city"
+    private val CITY_COLUM: String = "name"
     private val COUNTRY_COLUM: String = "country"
     private val SUGGESTION_CULUM: Array<String> = arrayOf(BaseColumns._ID, PLACE_ID_COLUM, CITY_COLUM, COUNTRY_COLUM)
 
@@ -42,9 +41,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         SimpleCursorAdapter(this, android.R.layout.simple_expandable_list_item_2, null, colums, itemIds, 0)
     }
 
-    private val cityAdapter = CityAdapter(onRemoveClicks = { city ->
-        presenter.removeCity(city)
-    })
+    private val cityAdapter = CityAdapter(
+            onRemoveClicks = { city -> presenter.removeCity(city) },
+            onCityClicks = {city ->  presenter.clickOnCity(city)}
+            )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +76,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
-                    presenter.onSuggvestionQuery(query)
+                    presenter.onSuggestionQuery(query)
                 }
                 return true
             }
@@ -91,7 +91,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 val citySelected = cursor.getString(cursor.getColumnIndex(CITY_COLUM))
                 val countrySelected = cursor.getString(cursor.getColumnIndex(COUNTRY_COLUM))
 
-                presenter.savedCityDb(City(idSelected, citySelected, countrySelected))
+                presenter.onSuggestionCitySelect(City(idSelected, citySelected, countrySelected, lat = null, lng = null))
 
                 searchView.setQuery("", false) // Очищаю строку поиска
                 searchView.clearFocus() // Убрал фокус чтобы скрыть клавиатуру
@@ -121,5 +121,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun showListCicies(cities: List<City>) {
         cityAdapter.setItems(cities)
+    }
+
+    override fun startWeatherActivity(city: City) {
+        val intent = Intent(this, WeatherActivity::class.java)
+        intent.putExtra("name", city)
+        startActivity(intent)
     }
 }

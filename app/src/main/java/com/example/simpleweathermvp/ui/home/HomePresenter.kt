@@ -2,52 +2,53 @@ package com.example.simpleweathermvp.ui.home
 
 import android.annotation.SuppressLint
 import android.util.Log
-import com.example.simpleweathermvp.entity.City
-import com.example.simpleweathermvp.interactors.AddCity
-import com.example.simpleweathermvp.interactors.GetAllCities
-import com.example.simpleweathermvp.interactors.RemoveCityInteractor
-import com.example.simpleweathermvp.model.CityModel
+import com.example.simpleweathermvp.data.geteway.CityGateway
+import com.example.simpleweathermvp.domain.city.*
+import com.example.simpleweathermvp.domain.entity.City
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 
 class HomePresenter(
-        private val cityModel: CityModel,
         private val homeView: HomeView,
-        private val addCity: AddCity,
-        private val getAllCities: GetAllCities,
-        private val removeCityInteractor: RemoveCityInteractor
+        private val getCitySuggestionInteractor: GetCitySuggestionInteractor,
+        private val addCityInteractor: AddCityInteractor,
+        private val getAllCitiesInteractor: GetAllCitiesInteractor,
+        private val removeCityInteractor: RemoveCityInteractor,
+        private val getCityLocationInteractor: GetCityLocationInteractor
 
 ) {
 
 
     @SuppressLint("CheckResult")
-    fun onSuggvestionQuery(query: String){
-        cityModel.getCitySuggestion(query)
+    fun onSuggestionQuery(query: String){
+        getCitySuggestionInteractor.execute(query)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    homeView?.showSuggvestionCities(it)
+                    homeView.showSuggvestionCities(it)
                 }, {
                     Log.e("App", "Error", it)
                 })
     }
 
-    fun savedCityDb(city: City){
-        addCity.execute(city)
+    fun onSuggestionCitySelect(city: City) {
+        addCityInteractor.execute(city)
     }
 
     @SuppressLint("CheckResult")
     fun getAllCities(){
-        getAllCities.execute()
+        getAllCitiesInteractor.execute()
                 .subscribe(Consumer {
 
                     homeView.showListCicies(it.map { cityTable ->
                         City(
                                 id = cityTable.id,
-                                name = cityTable.city,
-                                country = cityTable.country
+                                name = cityTable.name,
+                                country = cityTable.country,
+                                lat = cityTable.lat,
+                                lng = cityTable.lng
                         )
                     })
                 })
@@ -56,4 +57,25 @@ class HomePresenter(
     fun removeCity(city: City){
         removeCityInteractor.execute(city)
     }
+
+    @SuppressLint("CheckResult")
+    fun clickOnCity(city: City) {
+
+        if (city.lat != null && city.lng != null) {
+
+            homeView.startWeatherActivity(city)
+
+        } else {
+            getCityLocationInteractor.execute(city)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        addCityInteractor.execute(it)
+                        homeView.startWeatherActivity(it)
+                    }, {
+                        Log.e("App", "Error", it)
+                    })
+        }
+    }
+
 }

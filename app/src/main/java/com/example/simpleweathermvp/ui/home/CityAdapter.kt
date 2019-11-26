@@ -5,11 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpleweathermvp.R
-import com.example.simpleweathermvp.entity.City
+import com.example.simpleweathermvp.domain.entity.City
 import kotlinx.android.synthetic.main.city_list_items.view.*
 
 class CityAdapter(
-        private val onRemoveClicks: (City) -> Unit
+        private val onRemoveClicks: (City) -> Unit,
+        private val onCityClicks: (City) -> Unit
 ) : RecyclerView.Adapter<CityAdapter.CityViewHolder>() {
 
     private var values: List<City> = emptyList()
@@ -36,6 +37,9 @@ class CityAdapter(
         init {
             itemView.v_close.setOnClickListener {
                 onRemoveClicks.invoke(values[adapterPosition])
+            }
+            itemView.setOnClickListener {
+                onCityClicks.invoke(values[adapterPosition])
             }
         }
 

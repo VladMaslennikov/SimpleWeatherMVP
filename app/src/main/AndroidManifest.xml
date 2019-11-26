@@ -10,7 +10,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".App">
+        android:name=".App"
+        android:usesCleartextTraffic="true">
+
 
         <activity android:name=".ui.home.HomeActivity">
             <intent-filter>
@@ -23,6 +25,10 @@
                 android:resource="@xml/searchable">
 
             </meta-data>
+        </activity>
+
+        <activity android:name=".ui.weather.WeatherActivity">
+
         </activity>
     </application>
 </manifest>
