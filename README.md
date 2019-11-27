@@ -1,2 +1,2 @@
 # SimpleWeatherMVP
-![Image alt](https://github.com/vladmaslennikov/simpleweathermvp/raw/master/weatherapp.png)
+![Image alt](https://github.com/VladMaslennikov/SimpleWeatherMVP/blob/master/WeatherApp.png)
